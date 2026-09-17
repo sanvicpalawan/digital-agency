@@ -43,6 +43,10 @@ The site ships as a **single self-contained HTML file** with a built-in backoffi
 - **Footer editor** — contact details, social links, website directory, trust badges
 - **Cloud sync** — authenticated Supabase publishing with session management
 - **Auto-save** — all changes persist to localStorage instantly
+- **Team Workstation** — shared study board for the team: subjects to learn (GitHub, Vercel, projects…)
+  with notes, comments, web + Google Drive links, and device image uploads. Every post is stamped with
+  author name and PHT date/time and tagged **Urgent**, **Moderate** or **Check when you have downtime**.
+  See [`TEAM_WORKSTATION.md`](merqato-digital-landing-page/TEAM_WORKSTATION.md)
 
 ### Deployment
 - **Singlefile build** via `vite-plugin-singlefile` — outputs one `.html` file with all assets inlined
@@ -89,13 +93,17 @@ digital-agency/
 │   │                               #   ─ Authentication & cloud sync
 │   ├── index.css                   # Tailwind v4 + custom theme system
 │   ├── vite-env.d.ts               # Vite type reference
+│   ├── components/workstation/     # Team Workstation (subjects, notes, links, images)
 │   ├── lib/
-│   │   └── supabase.ts             # Supabase client & CRUD helpers
+│   │   ├── supabase.ts             # Supabase client & site settings CRUD helpers
+│   │   ├── workstation.ts          # Team Workstation data layer (cloud + local fallback)
+│   │   └── identity.ts             # Display name + per-browser author token
 │   └── utils/
 │       └── cn.ts                   # clsx + tailwind-merge utility
 │
 └── supabase/
-    └── schema.sql                  # Database bootstrap (tables, RLS, storage)
+    ├── schema.sql                  # Database bootstrap (tables, RLS, storage)
+    └── workstation.sql             # Team Workstation tables, RLS and asset bucket
 ```
 
 ---
@@ -121,7 +129,7 @@ The site runs immediately in **local-preview mode** — all content is editable 
 ### Enable Cloud Publishing (Optional)
 
 1. Create a [Supabase](https://supabase.com) project
-2. Run `supabase/schema.sql` in the SQL Editor
+2. Run `supabase/schema.sql` in the SQL Editor (add `supabase/workstation.sql` for the Team Workstation)
 3. Create an admin user in Authentication > Users and add their UUID to `site_admins`
 4. Copy `.env.example` to `.env.local` and fill in your Supabase URL, publishable key, and a private admin passkey
 5. Restart the dev server

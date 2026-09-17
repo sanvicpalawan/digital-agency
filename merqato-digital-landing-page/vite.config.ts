@@ -16,4 +16,10 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
+  server: {
+    // Listen on all interfaces and accept tunneled preview hosts (sandboxes,
+    // ngrok, preview domains). Dev-server only — it does not affect the build.
+    host: true,
+    allowedHosts: true,
+  },
 });
