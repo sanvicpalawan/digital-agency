@@ -23,6 +23,16 @@ The schema creates:
 
 Row Level Security allows everyone to read published content but only users in `site_admins` to change content or upload/delete files.
 
+### Team Workstation (optional)
+
+The backoffice's **Team** tab (subjects, notes, comments, links, Google Drive links and uploaded
+images) needs its own tables and bucket. Run [`supabase/workstation.sql`](workstation.sql) after
+`schema.sql`, then read [TEAM_WORKSTATION.md](TEAM_WORKSTATION.md).
+
+It creates `workstation_subjects`, `workstation_entries`, `workstation_links`,
+`workstation_attachments` and the public `workstation-assets` storage bucket, and reuses the same
+environment variables — no extra keys required.
+
 ## 3. Add environment variables
 
 1. Copy `.env.example` to `.env.local`.

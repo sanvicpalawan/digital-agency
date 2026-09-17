@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { getAuthorToken } from './identity';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -14,6 +15,8 @@ export const supabase = supabaseUrl && supabaseKey
         autoRefreshToken: true,
         detectSessionInUrl: true,
       },
+      // The Team Workstation uses this header to tell posts apart by author.
+      global: { headers: { 'x-author-token': getAuthorToken() } },
     })
   : null;
 

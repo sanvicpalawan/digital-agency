@@ -5,7 +5,7 @@ import {
   Globe, ImagePlus, LockKeyhole, LogIn, LogOut, Mail, MapPin, Menu,
   MessageCircle, Moon, Palette, PanelRightClose, Radio, RotateCcw, Save,
   Scale, Share2, Shield, ShieldCheck, SlidersHorizontal, Sun, Type, Upload,
-  Wifi, X,
+  Users, Wifi, X,
 } from 'lucide-react';
 import {
   getCloudAssetUrl,
@@ -16,10 +16,11 @@ import {
   supabase,
   uploadCloudAsset,
 } from './lib/supabase';
+import TeamWorkstation from './components/workstation/TeamWorkstation';
 
 type Theme = 'light' | 'dark';
 type MediaType = 'image' | 'video';
-type AdminTab = 'content' | 'media' | 'design' | 'packages' | 'faq' | 'footer';
+type AdminTab = 'content' | 'media' | 'design' | 'packages' | 'faq' | 'footer' | 'workstation';
 type CloudState = 'local' | 'connecting' | 'ready' | 'published' | 'unauthenticated' | 'error';
 type Pillar = { title: string; description: string; points: string[] };
 type ServicePackage = { name: string; price: string; priceSub: string; description: string; tag: string; features: string[]; featured: boolean };
@@ -1110,11 +1111,11 @@ function CloudSync({
 function Backoffice({ settings, setSettings, assetUrls, onClose, onUpload, onClearAsset, onReset, cloudState, userEmail, onCloudSignIn, onCloudSignOut, onPublish }: { settings: SiteSettings; setSettings: React.Dispatch<React.SetStateAction<SiteSettings>>; assetUrls: Record<string, string>; onClose: () => void; onUpload: (slot: 'logo' | 'hero' | 'about' | 'footer', file: File) => void; onClearAsset: (slot: 'logo' | 'hero' | 'about' | 'footer') => void; onReset: () => void; cloudState: CloudState; userEmail?: string; onCloudSignIn: (email: string, password: string) => Promise<string | undefined>; onCloudSignOut: () => Promise<void>; onPublish: () => Promise<boolean> }) {
   const [tab, setTab] = useState<AdminTab>('content');
   const update = (callback: (current: SiteSettings) => SiteSettings) => setSettings((current) => callback(current));
-  const tabs: { id: AdminTab; label: string; icon: typeof Type }[] = [{ id: 'content', label: 'Content', icon: Type }, { id: 'media', label: 'Media', icon: ImagePlus }, { id: 'design', label: 'Design', icon: Palette }, { id: 'packages', label: 'Packages', icon: SlidersHorizontal }, { id: 'faq', label: 'FAQ', icon: ChevronDown }, { id: 'footer', label: 'Footer', icon: Mail }];
+  const tabs: { id: AdminTab; label: string; icon: typeof Type }[] = [{ id: 'content', label: 'Content', icon: Type }, { id: 'media', label: 'Media', icon: ImagePlus }, { id: 'design', label: 'Design', icon: Palette }, { id: 'packages', label: 'Packages', icon: SlidersHorizontal }, { id: 'faq', label: 'FAQ', icon: ChevronDown }, { id: 'footer', label: 'Footer', icon: Mail }, { id: 'workstation', label: 'Team', icon: Users }];
   const replacePillar = (index: number, pillar: Pillar) => update((current) => ({ ...current, pillars: { ...current.pillars, items: current.pillars.items.map((item, itemIndex) => itemIndex === index ? pillar : item) } }));
   const replacePackage = (index: number, pkg: ServicePackage) => update((current) => ({ ...current, packages: { ...current.packages, items: current.packages.items.map((item, itemIndex) => itemIndex === index ? pkg : item) } }));
   return (
-    <aside className="admin-panel fixed top-0 right-0 z-[60] w-full sm:w-[510px] max-w-full h-[100dvh] flex flex-col overflow-x-hidden">
+    <aside className={`admin-panel fixed top-0 right-0 z-[60] w-full ${tab === 'workstation' ? 'sm:w-[760px]' : 'sm:w-[510px]'} max-w-full h-[100dvh] flex flex-col overflow-x-hidden`}>
       <div className="px-4 sm:px-6 pt-5 border-b border-slate-200 dark:border-white/10 w-full">
         <div className="flex items-center justify-between gap-4 mb-4">
           <div className="min-w-0">
@@ -1129,7 +1130,7 @@ function Backoffice({ settings, setSettings, assetUrls, onClose, onUpload, onCle
           </button>
         </div>
         {/* All tabs stacked/grid without any horizontal scroll */}
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 pb-3 w-full">
+        <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 pb-3 w-full">
           {tabs.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -1154,6 +1155,7 @@ function Backoffice({ settings, setSettings, assetUrls, onClose, onUpload, onCle
         {tab === 'packages' && <PackagesEditor settings={settings} update={update} replacePackage={replacePackage} />}
         {tab === 'faq' && <FaqEditor settings={settings} update={update} />}
         {tab === 'footer' && <FooterEditor settings={settings} update={update} />}
+        {tab === 'workstation' && <TeamWorkstation />}
       </div>
       <div className="border-t border-slate-200 dark:border-white/10 px-4 sm:px-6 py-4 w-full">
         <CloudSync cloudState={cloudState} userEmail={userEmail} onSignIn={onCloudSignIn} onSignOut={onCloudSignOut} onPublish={onPublish} />
